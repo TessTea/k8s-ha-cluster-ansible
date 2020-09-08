@@ -1,0 +1,13 @@
+[LB_HOSTS]
+qc.lb1
+qc.lb2
+
+[MASTER_HOSTS]
+qc.m1
+qc.m2
+qc.m3
+
+[WORKER_HOSTS]
+qc.w1
+qc.w2
+qc.w3

@@ -1,0 +1,5 @@
+htpasswd -Bbn reguser mYaWeS0mep@s$ > auth/htpasswd                               
+
+docker run -d -p 5000:5000 --restart=always --name registry  -v /home/registry:/var/lib/registry -v "$(pwd)"/auth:/auth -e "REGISTRY_AUTH=htpasswd" -e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm" -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd registry:2
+
+kubectl create secret docker-registry regcred --docker-server=172.16.0.15:5000 --docker-username=reguser --docker-password=mYaWeS0mep@s$ --insecure-skip-tls-verify 

@@ -1,0 +1,30 @@
+---
+# tasks file for shared-storage
+- name: Add repository
+  when: ansible_os_family == "Debian"
+  apt_repository:
+    repo: ppa:gluster/glusterfs-7
+  environment:
+    http_proxy: "{{proxy_http}}"
+    https_proxy: "{{proxy_https}}"
+- name: Install packages "Debian"
+  when: ansible_os_family == "Debian"
+  apt:
+    name: ['glusterfs-server','glusterfs-client']
+    state: present
+    update_cache: yes
+  environment:
+    http_proxy: "{{proxy_http}}"
+    https_proxy: "{{proxy_https}}"
+- name: Start glusterfs
+  service:
+    name: glusterd
+    state: started
+    enables: yes
+- name: Create a trusted storage pool
+  gluster_peer:
+    state: present
+    nodes:
+    - "{{gluster-node1}}"
+    - "{{gluster-node2}}"
+    - "{{gluster-node3}}"

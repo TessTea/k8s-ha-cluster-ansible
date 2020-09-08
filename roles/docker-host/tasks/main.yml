@@ -1,0 +1,148 @@
+---
+# tasks file for docker-host
+- name: OS-family on node
+  debug:
+   msg: "OS family on {{ansible_nodename}}: {{ansible_os_family}}"
+- name: Turn off swap
+  shell: swapoff -a
+- name: Permanently disable swap in fstab
+  replace:
+    path: "/etc/fstab"
+    regexp: '^(.+?\sswap\s+sw\s+.*)$'
+    replace: '# \1'
+- name: Disable SELinux
+  when: ansible_os_family == "RedHat"
+  selinux:
+    state: disabled
+- name: Disable firewalld
+  when: ansible_os_family == "RedHat"
+  service:
+    name: firewalld
+    enabled: no
+    state: stopped
+- name: Disable ufw
+  when: ansible_os_family == "Debian"
+  service:
+    name: ufw
+    enabled: no
+    state: stopped
+- name: remove old packages RedHat
+  when: ansible_os_family == "RedHat"
+  yum:
+    name: ['docker','docker-client','docker-client-latest','docker-common','docker-latest','docker-latest-logrotate','docker-logrotate',docker-engine]
+    state: absent
+- name: remove old packages Debian
+  when: ansible_os_family == "Debian"
+  apt:
+    name: ['docker','docker.io','containerd','runc','docker-engine']
+    state: absent
+- name: install packages RedHat
+  when: ansible_os_family == "RedHat"
+  yum:
+    name: ['yum-utils','device-mapper-persistent-data','lvm2']
+    state: present
+    update_cache: yes
+  environment:
+    http_proxy: "{{proxy_http}}"
+    https_proxy: "{{proxy_https}}"
+- name: install packages Debian
+  when: ansible_os_family == "Debian"
+  apt:
+    name: ['apt-transport-https','ca-certificates','curl','gnupg2','software-properties-common']
+    state: present
+    update_cache: yes
+  environment:
+    http_proxy: "{{proxy_http}}"
+    https_proxy: "{{proxy_https}}"
+#- name: Download get docker script
+#  get_url: 
+#    url: https://get.docker.com/
+#    dest: ~/get_docker.sh
+#    mode: '0777'
+#  environment:
+#    http_proxy: "{{proxy_http}}"
+#    https_proxy: "{{proxy_https}}"    
+#- name: Execute get docker script
+#  command: ~/get_docker.sh
+#  environment:
+#    http_proxy: "{{proxy_http}}"
+#    https_proxy: "{{proxy_https}}"
+- name: Add repository RedHat
+  when: ansible_os_family == "RedHat"
+  shell: yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+  environment:
+    http_proxy: "{{proxy_http}}"
+    https_proxy: "{{proxy_https}}"
+- name: Add GPG-key Debian
+  when: ansible_os_family == "Debian"
+  shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  environment:
+    http_proxy: "{{proxy_http}}"
+    https_proxy: "{{proxy_https}}"
+- name: Add repository Debian
+  when: ansible_os_family == "Debian"
+  shell: add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+  environment:
+    http_proxy: "{{proxy_http}}"
+    https_proxy: "{{proxy_https}}"
+- name: install packages RedHat
+  when: ansible_os_family == "RedHat"
+  yum:
+    name: ['docker-ce','docker-ce-cli','containerd.io']
+    state: present
+    update_cache: yes
+  environment:
+    http_proxy: "{{proxy_http}}"
+    https_proxy: "{{proxy_https}}"
+- name: install packages Debian
+  when: ansible_os_family == "Debian"
+  apt:
+    name: ['docker-ce','docker-ce-cli','containerd.io']
+    state: present
+    update_cache: yes
+  environment:
+    http_proxy: "{{proxy_http}}"
+    https_proxy: "{{proxy_https}}"
+
+- name: create /etc/daemon directory
+  file:
+    path: /etc/docker
+    state: directory    
+- name: configure daemon.json
+  template:
+    src:  daemon.json.j2
+    dest: /etc/docker/daemon.json
+- name: create proxy directory for docker
+  when: proxy == "yes"
+  file:
+    path: /etc/systemd/system/docker.service.d
+    state: directory
+- name: configure proxy for docker
+  when: proxy == "yes"
+  template:
+    src: "https-proxy.conf.j2"
+    dest: "/etc/systemd/system/docker.service.d/https-proxy.conf"
+- name: stop docker
+  service: 
+    name: docker
+    state: stopped
+    enabled: yes
+- name: Move docker folder
+  command: mv /var/lib/docker "{{docker_home_root}}/"
+- name: Create symbolic link to /var/lib/docker
+  file:
+    state: link
+    src: "{{docker_home_root}}/docker"
+    dest: /var/lib/docker
+- name: daemon reload
+  systemd:
+   daemon_reload: yes
+- name: start docker
+  service: 
+    name: docker
+    state: restarted
+    enabled: yes
+- name: Add the user from hosts-file to docker group
+  user:
+    name: "{{user}}"
+    group: docker

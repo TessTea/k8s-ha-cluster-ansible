@@ -1,0 +1,27 @@
+---
+# tasks file for ./roles/load-balancer
+- name: install load-balancer packages "Debian"
+  when: ansible_os_family == "Debian"
+  apt: 
+   name: ['keepalived','haproxy']
+   state: present
+   update_cache: yes
+  environment: 
+    http_proxy: "{{proxy_http}}"
+    https_proxy: "{{proxy_https}}"
+- name: install load-balancer packages "RedHat"
+  when: ansible_os_family == "RedHat"
+  yum: 
+    name: ['keepalived','haproxy']
+    state: present
+    update_cache: yes
+  environment:
+    http_proxy: "{{proxy_http}}"
+    https_proxy: "{{proxy_https}}"
+- name: load configuration templates
+  template:
+    src: "{{item.src}}"
+    dest: "/etc/{{item.dest}}"
+  with_items:
+  - {src: 'keepalived.conf.j2', dest: 'keepalived/keepalived.conf'}
+  - {src: 'haproxy.cfg.j2', dest: 'haproxy/haproxy.cfg'}

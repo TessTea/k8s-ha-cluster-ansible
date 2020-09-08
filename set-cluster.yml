@@ -1,0 +1,16 @@
+---
+  - hosts: all
+    roles:
+      - docker-host
+
+  - hosts: LB_HOSTS
+    roles:
+      - load-balancer
+
+  - hosts: MASTER_HOSTS, WORKER_HOSTS
+    roles:
+      - k8s-node
+
+#  - hosts: WORKER_HOSTS
+#    roles:
+#      - shared-storage

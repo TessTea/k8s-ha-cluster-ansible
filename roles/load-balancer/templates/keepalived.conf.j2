@@ -1,0 +1,29 @@
+vrrp_instance internal_1 {
+    state MASTER
+    interface {{internal_vip_interface}}
+    virtual_router_id 1
+    priority 100
+    advert_int 1
+    authentication {
+        auth_type AH
+        auth_pass iech6peeBu6Thoo8xaih
+    }
+    virtual_ipaddress {
+        {{internal_vip}}
+    }
+}
+
+vrrp_instance external_1 {
+    state MASTER
+    interface {{external_vip_interface}}
+    virtual_router_id 2
+    priority 100
+    advert_int 1
+    authentication {
+        auth_type AH
+        auth_pass iech6peeBu6Thoo8xaih
+    }
+    virtual_ipaddress {
+        {{external_vip}}
+    }
+}

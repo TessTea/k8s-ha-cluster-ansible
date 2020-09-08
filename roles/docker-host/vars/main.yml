@@ -1,0 +1,11 @@
+---
+# vars file for docker-host
+user: tess
+ansible_connection: ssh
+# ansible_become_pass: 
+# For proxy just "yes" works
+proxy: "yes"
+proxy_http: http://172.16.0.5:3128
+proxy_https: http://172.16.0.5:3128
+insecure_registries: 172.16.0.15:5000
+docker_home_root: /home

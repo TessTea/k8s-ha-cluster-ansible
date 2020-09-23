@@ -67,21 +67,47 @@
 #  environment:
 #    http_proxy: "{{proxy_http}}"
 #    https_proxy: "{{proxy_https}}"
-- name: Add repository RedHat
+# - name: Add repository RedHat
+  # when: ansible_os_family == "RedHat"
+  # shell: yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+  # environment:
+    # http_proxy: "{{proxy_http}}"
+    # https_proxy: "{{proxy_https}}"
+- name: Add Docker repo RedHat
   when: ansible_os_family == "RedHat"
-  shell: yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+  get_url:
+    url: https://download.docker.com/linux/centos/docker-ce.repo
+    dest: /etc/yum.repos.d/docker-ce.repo
+    force: yes
+    use_proxy: yes
   environment:
     http_proxy: "{{proxy_http}}"
     https_proxy: "{{proxy_https}}"
-- name: Add GPG-key Debian
+# - name: Add GPG-key Debian
+#   when: ansible_os_family == "Debian"
+#   shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+#   environment:
+#     http_proxy: "{{proxy_http}}"
+#     https_proxy: "{{proxy_https}}"
+- name: Add Docker GPG apt Key
   when: ansible_os_family == "Debian"
-  shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
   environment:
     http_proxy: "{{proxy_http}}"
     https_proxy: "{{proxy_https}}"
-- name: Add repository Debian
+# - name: Add repository Debian
+#   when: ansible_os_family == "Debian"
+#   shell: add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+#   environment:
+#     http_proxy: "{{proxy_http}}"
+#     https_proxy: "{{proxy_https}}"
+- name: Add Docker Repository Debian
   when: ansible_os_family == "Debian"
-  shell: add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+  apt_repository:
+    repo: deb https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable
+    state: present
   environment:
     http_proxy: "{{proxy_http}}"
     https_proxy: "{{proxy_https}}"
@@ -104,6 +130,10 @@
     http_proxy: "{{proxy_http}}"
     https_proxy: "{{proxy_https}}"
 
+#####################
+# Configuring part: #
+#####################
+
 - name: create /etc/daemon directory
   file:
     path: /etc/docker
@@ -122,6 +152,11 @@
   template:
     src: "https-proxy.conf.j2"
     dest: "/etc/systemd/system/docker.service.d/https-proxy.conf"
+- name: start docker
+  service: 
+    name: docker
+    state: started
+    enabled: yes
 - name: stop docker
   service: 
     name: docker

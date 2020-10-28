@@ -40,6 +40,7 @@ proxy: ""
 proxy_http: 
 proxy_https: 
 ansible_connection: ssh
+offline: "yes"
 
 # Docker_section
 user: root

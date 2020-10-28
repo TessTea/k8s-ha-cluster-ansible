@@ -1,0 +1,32 @@
+---
+- name: OS-family on node
+  debug:
+   msg: "OS family on {{ansible_nodename}}: {{ansible_os_family}}"
+
+- name: Disable SELinux
+  when: ansible_os_family == "RedHat"
+  selinux:
+    state: disabled
+    
+- name: Disable firewalld
+  when: ansible_os_family == "RedHat"
+  service:
+    name: firewalld
+    enabled: no
+    state: stopped
+
+- name: Disable ufw
+  when: ansible_os_family == "Debian"
+  service:
+    name: ufw
+    enabled: no
+    state: stopped
+
+- name: Turn off swap
+  shell: swapoff -a
+
+- name: Permanently disable swap in fstab
+  replace:
+    path: "/etc/fstab"
+    regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
+    replace: '# \1'

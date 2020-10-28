@@ -5,3 +5,8 @@ ps.node5
 ps.node4
 
 [WORKER_HOSTS]
+
+[all:children]
+LB_HOSTS
+MASTER_HOSTS
+WORKER_HOSTS

@@ -1,0 +1,7 @@
+---
+- name: Converge
+  hosts: all
+  tasks:
+    - name: "Include load-balancer"
+      include_role:
+        name: "load-balancer"

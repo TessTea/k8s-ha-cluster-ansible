@@ -10,17 +10,23 @@
   environment: 
     http_proxy: "{{proxy_http}}"
     https_proxy: "{{proxy_https}}"
+
 - name: curl for package "Debian"
   when: ansible_os_family == "Debian"
-  shell: "curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -"
+  #shell: "curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -"
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
   environment: 
     http_proxy: "{{proxy_http}}"
     https_proxy: "{{proxy_https}}"
+
 - name: add package source to package-list "Debian"
   when: ansible_os_family == "Debian"
   template:
     src: "kubernetes.list.j2"
     dest: "/etc/apt/sources.list.d/kubernetes.list"
+
 - name: install "kubelet, kubeadm, kubectl" "Debian"
   when: ansible_os_family == "Debian"
   apt:
@@ -30,6 +36,7 @@
   environment:
    http_proxy: "{{proxy_http}}"
    https_proxy: "{{proxy_https}}"
+
 - name: add repository "RedHat"
   when: ansible_os_family == "RedHat"
   template:
@@ -38,13 +45,15 @@
   environment:
     http_proxy: "{{proxy_http}}"
     https_proxy: "{{proxy_https}}"
+
 - name: Dirty Hack "RedHat"
   when: ansible_os_family == "RedHat"
   shell: 
    cmd: echo -e "y" | yum repolist
   environment:
     http_proxy: "{{proxy_http}}"
-    https_proxy: "{{proxy_https}}"            
+    https_proxy: "{{proxy_https}}"   
+
 - name: install "kubeadm, kubelet, kubectl" "RedHat"
   when: ansible_os_family == "RedHat"
   yum: 
@@ -54,6 +63,7 @@
   environment:
     http_proxy: "{{proxy_http}}"
     https_proxy: "{{proxy_https}}"
+
 - name: configure required binary
   become: yes
   sysctl:
@@ -62,6 +72,7 @@
    sysctl_set: yes
    state: present
    reload: yes
+
 - name: Enable and start kubelet
   service:
     name: kubelet

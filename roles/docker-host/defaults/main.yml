@@ -1,2 +1,58 @@
+# ---
+# # vars file for docker-host
+# user: root
+# ansible_connection: ssh
+# # ansible_become_pass: 
+# # For proxy just "yes" works
+# proxy: ""
+# proxy_http: 
+# proxy_https: 
+# insecure_registries: 10.10.16.81:5000
+# docker_home_root: /hdd
+
+# ---
+# # vars file for k8s-node
+# ansible_connection: ssh
+# proxy_http: 
+# proxy_https: 
+
+# ---
+# # vars file for ./roles/load-balancer
+# ansible_connection: ssh
+# proxy_http: http://172.16.0.5:3128
+# proxy_https: http://172.16.0.5:3128
+
+
+# ---
+# # vars file for shared-storage
+# ansible_connection: ssh
+# proxy_http: http://172.16.0.5:3128
+# proxy_https: http://172.16.0.5:3128
+# gluster-node1: 172.16.0.11
+# gluster-node2: 172.16.0.12
+# gluster-node3: 172.16.0.13
+
+
+#FINAL
 ---
-# defaults file for docker-host
+    # SHARED_SECTION:
+    proxy: ""
+    proxy_http: ""
+    proxy_https: ""
+    
+    # Docker_section
+    user: root
+    insecure_registries: 10.10.16.81:5000
+    docker_home_root: /home
+    
+    # LB_section:
+    internal_vip: 172.16.0.15
+    external_vip: 82.200.168.100
+    internal_vip_interface: ens160
+    external_vip_interface: ens192
+    master1_ip: 172.16.0.8
+    master2_ip: 172.16.0.9
+    master3_ip: 172.16.0.10
+    worker1_ip: 172.16.0.11
+    worker2_ip: 172.16.0.12
+    worker3_ip: 172.16.0.13

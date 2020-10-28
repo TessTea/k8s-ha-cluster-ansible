@@ -1,0 +1,16 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+platforms:
+  - name: Centos-instance
+    image: jrei/systemd-centos:7
+    pre_build_image: true
+  - name: Ubuntu-instance
+    image: jrei/systemd-ubuntu:18.04
+    pre_build_image: true
+provisioner:
+  name: ansible
+verifier:
+  name: ansible

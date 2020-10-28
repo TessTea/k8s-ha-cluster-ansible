@@ -1,0 +1,7 @@
+---
+- name: Converge
+  hosts: all
+  tasks:
+    - name: "Include docker-host"
+      include_role:
+        name: "docker-host-offline"

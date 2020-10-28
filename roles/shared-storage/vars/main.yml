@@ -1,8 +1,0 @@
----
-# vars file for shared-storage
-ansible_connection: ssh
-proxy_http: http://172.16.0.5:3128
-proxy_https: http://172.16.0.5:3128
-gluster-node1: 172.16.0.11
-gluster-node2: 172.16.0.12
-gluster-node3: 172.16.0.13

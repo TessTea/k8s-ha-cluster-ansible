@@ -1,5 +1,0 @@
----
-# vars file for k8s-node
-ansible_connection: ssh
-proxy_http: http://172.16.0.5:3128
-proxy_https: http://172.16.0.5:3128

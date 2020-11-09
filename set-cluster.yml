@@ -1,6 +1,9 @@
 ---
   - hosts: all
     roles:
+      - base-setup
+  - hosts: all
+    roles:
       - docker-host
 
   - hosts: LB_HOSTS

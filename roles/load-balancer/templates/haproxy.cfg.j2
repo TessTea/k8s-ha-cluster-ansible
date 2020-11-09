@@ -1,8 +1,45 @@
+global
+    daemon
+    maxconn 10000
+
+# Вот тут подумай хорошенько про свои процы:
+
+    nbproc 8
+    cpu-map 1 0
+    cpu-map 2 1
+    cpu-map 3 2
+    cpu-map 4 3
+    cpu-map 5 4
+    cpu-map 6 5
+    cpu-map 7 6
+    cpu-map 8 7
+
+    log /dev/stdout local0 debug
+
+ defaults
+
+    log global
+    mode tcp
+    retries 3
+    timeout client 5m
+    timeout connect 4s
+    timeout server 5m
+    timeout check 5s
+
+    maxconn 10000
+
+    timeout client-fin 1s
+    timeout server-fin 1s
+
+    timeout http-request 10s
+    timeout http-keep-alive 50s
+
 frontend k8s-api
   bind {{internal_vip}}:6443
   bind 127.0.0.1:6443
   mode tcp
   option tcplog
+  timeout client 300000
   default_backend k8s-api
 
 frontend traefik-tls
@@ -33,6 +70,7 @@ backend k8s-api
   mode tcp
   option tcplog
   option tcp-check
+  timeout server 300000
   balance roundrobin
   default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 250 maxqueue 256 weight 100
   server master1 {{master1_ip}}:6443 check

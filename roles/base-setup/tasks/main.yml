@@ -3,6 +3,34 @@
   debug:
    msg: "OS family on {{ansible_nodename}}: {{ansible_os_family}}"
 
+- name: Copy local repo-files
+  copy:
+   src: "{{item}}"
+   dest: /var/tmp/
+  loop:
+   - "common"
+   - "docker"
+   - "gluster"
+   - "k8s"
+
+- name: Create an old repository-backup directory
+  file:
+    path: /etc/yum-stock-repos
+    state: directory
+
+- name: Move old dirs
+  shell: mv /etc/yum.repos.d/CentOS* /etc/yum-stock-repos/
+
+- name: configure repo to use local repository
+  template:
+    src: "offline.repo.j2"
+    dest: "/etc/yum.repos.d/offline.repo"
+
+- name: install common packages
+  package: 
+    name: ['vim','tmux','bash-completion', 'python3']
+    state: present
+
 - name: Disable SELinux
   when: ansible_os_family == "RedHat"
   selinux:

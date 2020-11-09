@@ -1,14 +1,21 @@
-# Just couple roles to install HA-cluster with load-balancers
+# Версия пачки ролей для решения задачи в рамках херовых условий(читай нет интернета, но ты можешь принести флэшку).
 
  - checked on docker version 19.0
- - work with CentOS-7 & Ubuntu 18.
+ - work with CentOS-7
  
- ## How to start:
+ ## Как с этим жить:
  
- - fill in the ansible.cfg, hosts and var-files into roles
- - start installing cluster with ansible-playbook set-cluster.yml
+ - Генерим пачку офлайн реп и образов из репы-генератора
+ - Всё, что создал генератор засовываем в roles/base-setup/files/
+ - Заполняем файл group_vars/all.yml, там пачка переменных, от которых всё зависит
+ - Генерим ssh-ключи, копируем их на серваки
+ - Используем root-учётку от сервака(либо настраиваем sudo без пароля)
+ - Заполняем файл hosts
+ - ansible-playbook set-cluster.yml
+ - молимся
 
- ## Need to do:
+ ## Шо дальше(автоматизирую потом(наверное...)):
 
-  - finish shared-storage role
-  - write initializing part
+  - Правим конфиги балансеров
+  - Стартуем ручками кластер
+  - Накидываем всё, что нам надо сверху

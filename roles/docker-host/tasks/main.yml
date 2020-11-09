@@ -22,104 +22,14 @@
     name: ['yum-utils','device-mapper-persistent-data','lvm2']
     state: present
     update_cache: yes
-  environment:
-    http_proxy: "{{proxy_http}}"
-    https_proxy: "{{proxy_https}}"
 
-- name: install packages Debian
-  when: ansible_os_family == "Debian"
-  apt:
-    name: ['apt-transport-https','ca-certificates','curl','gnupg2','software-properties-common']
-    state: present
-    update_cache: yes
-  environment:
-    http_proxy: "{{proxy_http}}"
-    https_proxy: "{{proxy_https}}"
-
-#- name: Download get docker script
-#  get_url: 
-#    url: https://get.docker.com/
-#    dest: ~/get_docker.sh
-#    mode: '0777'
-#  environment:
-#    http_proxy: "{{proxy_http}}"
-#    https_proxy: "{{proxy_https}}" 
-
-#- name: Execute get docker script
-#  command: ~/get_docker.sh
-#  environment:
-#    http_proxy: "{{proxy_http}}"
-#    https_proxy: "{{proxy_https}}"
-
-# - name: Add repository RedHat
-  # when: ansible_os_family == "RedHat"
-  # shell: yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-  # environment:
-    # http_proxy: "{{proxy_http}}"
-    # https_proxy: "{{proxy_https}}"
-
-- name: Add Docker repo RedHat
-  when: ansible_os_family == "RedHat"
-  get_url:
-    url: https://download.docker.com/linux/centos/docker-ce.repo
-    dest: /etc/yum.repos.d/docker-ce.repo
-    force: yes
-    use_proxy: yes
-  environment:
-    http_proxy: "{{proxy_http}}"
-    https_proxy: "{{proxy_https}}"
-
-# - name: Add GPG-key Debian
-#   when: ansible_os_family == "Debian"
-#   shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-#   environment:
-#     http_proxy: "{{proxy_http}}"
-#     https_proxy: "{{proxy_https}}"
-
-- name: Add Docker GPG apt Key
-  when: ansible_os_family == "Debian"
-  apt_key:
-    url: https://download.docker.com/linux/ubuntu/gpg
-    state: present
-  environment:
-    http_proxy: "{{proxy_http}}"
-    https_proxy: "{{proxy_https}}"
-
-# - name: Add repository Debian
-#   when: ansible_os_family == "Debian"
-#   shell: add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-#   environment:
-#     http_proxy: "{{proxy_http}}"
-#     https_proxy: "{{proxy_https}}"
-
-- name: Add Docker Repository Debian
-  when: ansible_os_family == "Debian"
-  apt_repository:
-    repo: deb https://download.docker.com/linux/ubuntu bionic stable
-    state: present
-  environment:
-    http_proxy: "{{proxy_http}}"
-    https_proxy: "{{proxy_https}}"
-
-- name: install packages RedHat
+- name: install docker RedHat
   when: ansible_os_family == "RedHat"
   yum:
     name: ['docker-ce','docker-ce-cli','containerd.io']
     state: present
     update_cache: yes
-  environment:
-    http_proxy: "{{proxy_http}}"
-    https_proxy: "{{proxy_https}}"
 
-- name: install packages Debian
-  when: ansible_os_family == "Debian"
-  apt:
-    name: ['docker-ce','docker-ce-cli','containerd.io']
-    state: present
-    update_cache: yes
-  environment:
-    http_proxy: "{{proxy_http}}"
-    https_proxy: "{{proxy_https}}"
 
 #####################
 # Configuring part: #
@@ -160,3 +70,19 @@
     name: docker
     state: restarted
     enabled: yes
+
+###################
+# Loading images: #
+###################
+
+- name: template loader script
+  template:
+    src:  image_loader.py.j2
+    dest: /var/tmp/image_loader.py
+    mode: 740
+
+- name: Run a script to load images
+  script: /var/tmp/image_loader.py
+  args:
+    executable: python3
+

@@ -1,0 +1,24 @@
+---
+# tasks file for k8s-node
+## Here starts K8S installing
+- name: install "kubeadm, kubelet, kubectl" "RedHat"
+  when: ansible_os_family == "RedHat"
+  yum: 
+    name: ['kubelet','kubeadm','kubectl','bash-completion']
+    state: present
+    update_cache: yes
+
+- name: configure required binary
+  become: yes
+  sysctl:
+   name: net.bridge.bridge-nf-call-iptables
+   value: '1'
+   sysctl_set: yes
+   state: present
+   reload: yes
+
+- name: Enable and start kubelet
+  service:
+    name: kubelet
+    enabled: yes
+    state: restarted

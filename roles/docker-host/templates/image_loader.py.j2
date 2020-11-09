@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+
+import os
+import json
+
+imgdir = 'var/tmp/images'
+arr = os.listdir(imgdir)
+
+for i in arr:
+    print(f'Loading image {i}...')
+    try:
+        os.system(f'docker load -i {imgdir}/{i}')
+        print(f'Image {i} loaded succesfully!')
+    except Exception as e:
+        print(e)

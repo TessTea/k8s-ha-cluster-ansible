@@ -4,4 +4,4 @@
   tasks:
     - name: "Include docker-host"
       include_role:
-        name: "docker-host"
+        name: "docker-host-offline"
